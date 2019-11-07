@@ -4,6 +4,7 @@ import numpy as np
 
 # Clustering Implementation
 from KMeans import KMeans
+from dbscan import DBSCAN
 
 # Sklearn Library
 from sklearn import datasets
