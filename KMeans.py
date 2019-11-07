@@ -4,6 +4,7 @@ from math import sqrt
 from copy import deepcopy
 
 IntegerTypes = (int)
+ArrayTypes = (pd.core.series.Series, np.ndarray)
 
 class KMeans:
     __centroid = []
@@ -28,7 +29,7 @@ class KMeans:
 
     def __clusterObject(self) :
         # Put object to one cluster
-        cluster_result = []
+        cluster_result = np.full(self.__X_train.shape[0], -1)
         for i in range (self.__X_train.shape[0]):
             minimum_centroid = self.__centroid[0]
             minimum_index = 0
@@ -40,24 +41,24 @@ class KMeans:
         return cluster_result
 
     def fit(self, X) :
-        if not isinstance(X, pd.core.frame.DataFrame) :
-            raise TypeError("X must be a pandas.core.frame.DataFrame")
+        # if not isinstance(X, ArrayTypes) :
+        #     raise TypeError("X must be a pandas.core.frame.DataFrame")
         self.__X_train = X
 
         # Result initialization
-        cluster_result = np.full(self.__X_train.shape[0], -1)
-        
+        self.__centroid = np.full((self.__number_of_cluster, self.__X_train.shape[1]), -1)
+
         # Choose random centroid
         for i in range (self.__number_of_cluster) :
             centroid_idx = np.random.randint(self.__X_train.shape[0], size=1)[0]
-            self.__centroid.append(X[centroid_idx])
+            self.__centroid[i] = X[centroid_idx]
         self.__centroid = np.asarray(self.__centroid)
         
         prev_cluster = np.full(self.__X_train.shape[0], -999)
+        cluster_result = np.full(self.__X_train.shape[0], -99)
 
         # Cluster objects to nearest cluster
         while (1) :
-            # print (iteration)
             prev_cluster = deepcopy(cluster_result)
             
             cluster_result = self.__clusterObject()
@@ -69,23 +70,28 @@ class KMeans:
                 cluster_result_modified = np.full(self.__X_train.shape[1], 0)
                 result = np.where(cluster_result == i)
                 count = 0
-                for idx in result[0] :
-                    cluster_result_modified = self.__addArray(cluster_result_modified, self.__X_train[idx])
-                    count += 1
-                mean_result = np.divide(np.asarray(cluster_result_modified), count)
-                all_cluster_list.append(mean_result)
+                if (len(result[0]) > 0) :
+                    for idx in result[0] :
+                        cluster_result_modified = self.__addArray(cluster_result_modified, self.__X_train[idx])
+                        count += 1
+                    mean_result = np.divide(np.asarray(cluster_result_modified), count)
+                    all_cluster_list.append(mean_result)
+                else :
+                    all_cluster_list.append(cluster_result_modified)
+
             all_cluster_result = np.asarray(all_cluster_list)
-            
+
+            # Update centroid
             for i in range(len(self.__centroid)) :
                 self.__centroid[i] = all_cluster_result[i]
-        
+
             # End condition when clustering does not change
             if (np.all(prev_cluster == cluster_result)) :
                 break
     
     def predict(self, X) :
-        if not isinstance(X, pd.core.frame.DataFrame) :
-            raise TypeError("X must be a pandas.core.frame.DataFrame")
+        # if not isinstance(X, ArrayTypes) :
+        #     raise TypeError("X must be a pandas.core.frame.DataFrame")
         self.__X_train = X
         result = self.__clusterObject()
         return result
