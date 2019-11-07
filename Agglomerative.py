@@ -33,16 +33,17 @@ class Agglomerative:
         self.__distance = pairwise_distances(X, metric='euclidean')
         self.__X_train = X
 
-        for iterate in range(len(self.__distance)):
+        temp_centroid = []
+
+        for i in range(len(self.distance)):
+            temp_centroid.append(i)
+
+        self.__centroid[0] = temp_centroid.copy()
+
+        for iterate in range(1, len(self.__distance)):
             min_distance = self.__distance[1][0]
             min_P1 = 1
             min_P2 = 0
-            temp_centroid = []
-
-            for i in range(len(self.distance)):
-                temp_centroid.append(i)
-
-            self.__centroid[0] = temp_centroid.copy()
 
             for i in range(len(self.__distance)):
                 for j in range(i):
