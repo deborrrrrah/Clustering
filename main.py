@@ -23,6 +23,7 @@ from sklearn.model_selection import train_test_split
 
 # Comment below
 X = [0, 1]
+y = [0]
 
 kf = KFold(n_splits=2)
 kmeans = KMeans(3)
