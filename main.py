@@ -5,6 +5,7 @@ import numpy as np
 # Clustering Implementation
 from KMeans import KMeans
 from dbscan import DBSCAN
+from Metric import Metric
 
 # Sklearn Library
 from sklearn import datasets
@@ -28,10 +29,13 @@ df = pd.read_csv(file_path, header=None)
 X = df.iloc[:,:-1]
 y = df.iloc[:,-1:]
 
+number_of_cluster = 3
 kf = KFold(n_splits=2)
-kmeans = KMeans(3)
+kmeans = KMeans(number_of_cluster)
+
 for train_index, test_index in kf.split(X):
-    X_train, y_train = X[train_index], y[train_index]
-    X_test, y_test = X[test_index], y[test_index]
+    X_train, y_train = X.iloc[train_index], y.iloc[train_index]
+    X_test, y_test = X.iloc[test_index], y.iloc[test_index]
     kmeans.fit(X_train)
     result = kmeans.predict(X_test)
+    metric = Metric(result, number_of_cluster)
