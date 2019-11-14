@@ -66,7 +66,7 @@ class DBSCAN :
 
     # fit function
     def fit(self, X) :
-    # input : X : dataset {pandas.DataFrame}
+    # input : X : dataset   {pandas.DataFrame}
         self.__X = X
         
         len_X = len(self.__X.index)
@@ -84,7 +84,8 @@ class DBSCAN :
                 self.__expand_cluster(curr, nei_pts)
 
     def predict(self, X) :
-    # input : X : dataset {pandas.DataFrame}
+    # input : X : dataset       {pandas.DataFrame}
+    # output : list of labels   {[int]}
         self.__X_predict = X
 
         len_X = len(self.__X_predict)
@@ -98,6 +99,7 @@ class DBSCAN :
             count_labels = dict.fromkeys(keys, 0)
             for neighbor in self.__neighbors_predict[i] :
                 count_labels[self.__labels[neighbor]] += 1
+            # if all 0 then it will be return -1
             self.__labels_predict[i] = max(count_labels.items(), key = operator.itemgetter(1))[0]
 
         return self.__labels_predict
