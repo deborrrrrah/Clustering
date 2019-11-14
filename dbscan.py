@@ -70,7 +70,7 @@ class DBSCAN :
         
         len_X = len(self.__X.index)
         self.__unvisited = set(i for i in range(0, len_X))
-        self.__labels = [-1] * len_X
+        self.labels = [-1] * len_X
         self.__neighbors = [[i] for i in range(len_X)]
         
         self.__init_neighbors()
@@ -95,6 +95,8 @@ class DBSCAN :
         else :
             raise Exception('X should be a pandas.Dataframe or list of list')
 
+        self.labels_predict = [-1] * len(self.__X_predict.index)
+
         for i in range (0, len(self.__X_predict.index)) :
             min_distance = -1
             min_label = -1
@@ -102,10 +104,10 @@ class DBSCAN :
                 distance = self.__eucledian(self.__X_predict.loc[i], self.__X.loc[j])
                 if min_distance == -1 :
                     min_distance = distance
-                    min_label = self.__labels[j]
+                    min_label = self.labels[j]
                 elif distance < min_distance :
                     min_distance = distance
-                    min_label = self.__labels[j]
+                    min_label = self.labels[j]
             self.labels_predict[i] = min_label
 
         return self.labels_predict
