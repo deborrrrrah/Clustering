@@ -38,15 +38,7 @@ class DBSCAN :
                     distance = self.__eucledian(self.__X.loc[i], self.__X.loc[j])
                     if distance <= self.__eps :
                         self.__neighbors[i].append(j)
-                        self.__neighbors[j].append(i)
-
-    def __init_neighbors_predict(self) :
-    # find list of neighbors' indices for predict
-        for i in range (0, len(self.__X_predict.index)) :
-            for j in range (0, len(self.__X.index)) :
-                distance = self.__eucledian(self.__X_predict.loc[i], self.__X.loc[j])
-                if distance <= self.__eps :
-                    self.__neighbors_predict[i].append(j)
+                        self.__neighbors[j].append(i)    
 
     def __expand_cluster(self, p, pts) :
     # expand cluster until no point added
@@ -91,7 +83,7 @@ class DBSCAN :
                 self.__expand_cluster(curr, nei_pts)
 
     def predict(self, X) :
-    # method, find the highest label occurence of the neighbor. if doesn't have neighbor then -1
+    # method using nearest neighbor
     # input : X : dataset       {pandas.DataFrame || [[int]]}
     # output : list of labels   {[int]}
 
@@ -103,18 +95,17 @@ class DBSCAN :
         else :
             raise Exception('X should be a pandas.Dataframe or list of list')
 
-        len_X = len(self.__X_predict.index)
-        self.__labels_predict = [-1] * len_X
-        self.__neighbors_predict = [[] for i in range(len_X)]
-
-        self.__init_neighbors_predict()
-
         for i in range (0, len(self.__X_predict.index)) :
-            keys = [i for i in range(-1, self.__curr_cluster + 1)]
-            count_labels = dict.fromkeys(keys, 0)
-            for neighbor in self.__neighbors_predict[i] :
-                count_labels[self.__labels[neighbor]] += 1
-            # if doesn't have neighbor then it will be return -1
-            self.__labels_predict[i] = max(count_labels.items(), key = operator.itemgetter(1))[0]
+            min_distance = -1
+            min_label = -1
+            for j in range (0, len(self.__X.index)) :
+                distance = self.__eucledian(self.__X_predict.loc[i], self.__X.loc[j])
+                if min_distance == -1 :
+                    min_distance = distance
+                    min_label = self.__labels[j]
+                elif distance < min_distance :
+                    min_distance = distance
+                    min_label = self.__labels[j]
+            self.labels_predict[i] = min_label
 
-        return self.__labels_predict
+        return self.labels_predict

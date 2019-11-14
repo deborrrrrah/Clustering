@@ -21,6 +21,10 @@ from sklearn.model_selection import train_test_split
 # X = iris.data
 # y = iris.target
 
+# read data
+file_path = "iris.data"
+df = pd.read_csv(file_path, header=None)
+
 # Comment below
 X = [0, 1]
 y = [0]
