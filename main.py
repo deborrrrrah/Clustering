@@ -25,9 +25,8 @@ from sklearn.model_selection import train_test_split
 file_path = "iris.data"
 df = pd.read_csv(file_path, header=None)
 
-# Comment below
-X = [0, 1]
-y = [0]
+X = df.iloc[:,:-1]
+y = df.iloc[:,-1:]
 
 kf = KFold(n_splits=2)
 kmeans = KMeans(3)
