@@ -66,8 +66,15 @@ class DBSCAN :
 
     # fit function
     def fit(self, X) :
-    # input : X : dataset   {pandas.DataFrame}
-        self.__X = X
+    # input : X : dataset   {pandas.DataFrame || [[int]]}
+
+        # check input
+        if isinstance(X, pd.DataFrame) :
+            self.__X = X
+        elif isinstance(X, list) :
+            self.__X = pd.DataFrame(data=X)
+        else :
+            raise Exception('X should be a pandas.Dataframe or list of list')
         
         len_X = len(self.__X.index)
         self.__unvisited = set(i for i in range(0, len_X))
@@ -84,22 +91,30 @@ class DBSCAN :
                 self.__expand_cluster(curr, nei_pts)
 
     def predict(self, X) :
-    # input : X : dataset       {pandas.DataFrame}
+    # method, find the highest label occurence of the neighbor. if doesn't have neighbor then -1
+    # input : X : dataset       {pandas.DataFrame || [[int]]}
     # output : list of labels   {[int]}
-        self.__X_predict = X
 
-        len_X = len(self.__X_predict)
+        # check input
+        if isinstance(X, pd.DataFrame) :
+            self.__X_predict = X
+        elif isinstance(X, list) :
+            self.__X_predict = pd.DataFrame(data=X)
+        else :
+            raise Exception('X should be a pandas.Dataframe or list of list')
+
+        len_X = len(self.__X_predict.index)
         self.__labels_predict = [-1] * len_X
         self.__neighbors_predict = [[] for i in range(len_X)]
 
         self.__init_neighbors_predict()
 
-        for i in range (0, len(self.__X_predict)) :
+        for i in range (0, len(self.__X_predict.index)) :
             keys = [i for i in range(-1, self.__curr_cluster + 1)]
             count_labels = dict.fromkeys(keys, 0)
             for neighbor in self.__neighbors_predict[i] :
                 count_labels[self.__labels[neighbor]] += 1
-            # if all 0 then it will be return -1
+            # if doesn't have neighbor then it will be return -1
             self.__labels_predict[i] = max(count_labels.items(), key = operator.itemgetter(1))[0]
 
         return self.__labels_predict
