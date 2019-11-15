@@ -2,9 +2,11 @@ import pandas as pd
 import numpy as np
 from math import sqrt
 from copy import deepcopy
+import array, collections
 
 IntegerTypes = (int)
-ArrayTypes = (pd.core.series.Series, np.ndarray)
+NumberTypes = ['int32', 'int64', 'float32', 'float64']
+ArrayTypes = (np.ndarray)
 
 class KMeans:
     __centroid = []
@@ -34,15 +36,19 @@ class KMeans:
             minimum_centroid = self.__centroid[0]
             minimum_index = 0
             for j in range (self.__centroid.shape[0] - 1):
-                if (self.__countEuclideanDistance(self.__X_train.iloc[i], self.__centroid[j+1]) < self.__countEuclideanDistance(self.__X_train.iloc[i], minimum_centroid)) :
+                if (self.__countEuclideanDistance(self.__X_train[i], self.__centroid[j+1]) < self.__countEuclideanDistance(self.__X_train[i], minimum_centroid)) :
                     minimum_centroid = self.__centroid[j+1]
                     minimum_index = j+1
             cluster_result[i] = minimum_index
         return cluster_result
 
     def fit(self, X) :
-        # if not isinstance(X, ArrayTypes) :
-        #     raise TypeError("X must be a pandas.core.frame.DataFrame")
+        if not isinstance(X, ArrayTypes) :
+            raise TypeError("X must be a numpy ndarray")
+        elif isinstance(X, ArrayTypes):
+            for i in range(len(X)):
+                if X[i].dtype not in NumberTypes:
+                    raise TypeError("Attribute must be numerical")
         self.__X_train = X
 
         # Result initialization
@@ -51,7 +57,7 @@ class KMeans:
         # Choose random centroid
         for i in range (self.__number_of_cluster) :
             centroid_idx = np.random.randint(self.__X_train.shape[0], size=1)[0]
-            self.__centroid[i] = self.__X_train.iloc[centroid_idx]
+            self.__centroid[i] = self.__X_train[centroid_idx]
         self.__centroid = np.asarray(self.__centroid)
         
         prev_cluster = np.full(self.__X_train.shape[0], -999)
@@ -72,7 +78,7 @@ class KMeans:
                 count = 0
                 if (len(result[0]) > 0) :
                     for idx in result[0] :
-                        cluster_result_modified = self.__addArray(cluster_result_modified, self.__X_train.iloc[idx])
+                        cluster_result_modified = self.__addArray(cluster_result_modified, self.__X_train[idx])
                         count += 1
                     mean_result = np.divide(np.asarray(cluster_result_modified), count)
                     all_cluster_list.append(mean_result)
@@ -90,8 +96,12 @@ class KMeans:
                 break
     
     def predict(self, X) :
-        # if not isinstance(X, ArrayTypes) :
-        #     raise TypeError("X must be a pandas.core.frame.DataFrame")
+        if not isinstance(X, ArrayTypes) :
+            raise TypeError("X must be a numpy ndarray")
+        elif isinstance(X, ArrayTypes):
+            for i in range(len(X)):
+                if X[i].dtype not in NumberTypes:
+                    raise TypeError("Attribute must be numerical")
         self.__X_train = X
         result = self.__clusterObject()
         return result
