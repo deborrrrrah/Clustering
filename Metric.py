@@ -1,63 +1,45 @@
-import pandas as pd
-import numpy as np
-from math import sqrt
+from sklearn.metrics import accuracy_score
 from copy import deepcopy
+import numpy as np
+from itertools import repeat, permutations
 
-IntegerTypes = (int)
-ArrayTypes = (pd.core.series.Series, np.ndarray)
+NumberTypes = ['int32', 'int64', 'float32', 'float64']
+ArrayTypes = (np.ndarray)
+DummyNumber = -999
 
-class Metric:
-
-    def __init__(self, cluster_result, number_of_cluster) :
-        self.__cluster_result = []
-        for i in range (number_of_cluster) :
-            number_of_objects_one_cluster = []
-            text = 'Cluster ' + str(i + 1) + ' -> '
-            for j in range (number_of_cluster) :
-                indexes = np.where(cluster_result == i)[0]
-                digit_indexes = np.where((indexes >= 50 * j) & (indexes < 50 * (j+1)))[0]
-                text += 'class ' + str(j) + ': ' + str(len(digit_indexes))
-                number_of_objects_one_cluster.append(len(digit_indexes))
-                if (j < number_of_cluster-1) :
-                    text += ', '
-            self.__cluster_result.append(number_of_objects_one_cluster)
-            print (text)
+def clustering_accuracy_score(y_true, y_pred) :
+    if not isinstance(y_true, ArrayTypes) :
+        raise TypeError("y_true must be a numpy ndarray")
+    elif isinstance(y_true, ArrayTypes):
+        for i in range(len(y_true)):
+            if y_true[i].dtype not in NumberTypes:
+                raise TypeError("Class in y_true must be numerical")
+    if not isinstance(y_pred, ArrayTypes) :
+        raise TypeError("y_pred must be a numpy ndarray")
+    elif isinstance(y_pred, ArrayTypes):
+        for i in range(len(y_pred)):
+            if y_pred[i].dtype not in NumberTypes:
+                raise TypeError("Class in y_pred must be numerical")
     
-    def __recall_score(self) :
-        for i in range(len(self.__cluster_result)) :
-            cluster_index = int(np.where(self.__cluster_result[i] == np.max(self.__cluster_result[i]))[0])
-            print ('Cluster ' + str(i) + ' with majority ' + str(cluster_index))
-            true_positive = self.__cluster_result[i][cluster_index]
-        actual_positive = 0
-        for j in range(len(self.__cluster_result)) :
-            actual_positive += self.__cluster_result[j][cluster_index]
-        print ('Recall\t\t: ', true_positive/actual_positive)
-        print ()
-    
-    def __specificity_score(self) :
-        for i in range(len(self.__cluster_result)) :
-            cluster_index = int(np.where(self.__cluster_result[i] == np.max(self.__cluster_result[i]))[0])
-            print ('Cluster ' + str(i) + ' with majority ' + str(cluster_index))
-            false_positive = np.sum(self.__cluster_result[i]) - self.__cluster_result[i][cluster_index]
-        actual_negative = 0
-        for j in range(len(self.__cluster_result)) :
-            actual_positive += self.__cluster_result[j][cluster_index]
-            actual_negative += np.sum(self.__cluster_result[j]) - self.__cluster_result[j][cluster_index]
-        true_negative = actual_negative - false_positive
-        print ('Specificity\t: ', true_negative/actual_negative)
-        print ()
-
-    def __accuracy_score(self) :
-        for i in range(len(self.__cluster_result)) :
-            cluster_index = int(np.where(self.__cluster_result[i] == np.max(self.__cluster_result[i]))[0])
-            print ('Cluster ' + str(i) + ' with majority ' + str(cluster_index))
-            true_positive = self.__cluster_result[i][cluster_index]
-            false_positive = np.sum(self.__cluster_result[i]) - self.__cluster_result[i][cluster_index]
-        actual_positive = 0
-        actual_negative = 0
-        for j in range(len(self.__cluster_result)) :
-            actual_positive += self.__cluster_result[j][cluster_index]
-            actual_negative += np.sum(self.__cluster_result[j]) - self.__cluster_result[j][cluster_index]
-        true_negative = actual_negative - false_positive
-        print ('Accuracy\t\t: ', (true_positive + true_negative)/(actual_positive + actual_negative))
-        print ()
+    cluster_true = np.unique(y_true)
+    cluster_pred = np.unique(y_pred)
+    max_dict_result = dict(zip(cluster_true, repeat(None)))
+    max_accuracy = DummyNumber
+    if (len(cluster_true) > len(cluster_pred)) :
+        permutations_list = [dict(zip(cluster_true, x)) for x in permutations(cluster_pred,len(cluster_pred))]
+    else :
+        permutations_list = [dict(zip(cluster_true, x)) for x in permutations(cluster_pred,len(cluster_true))]
+    for permutation in permutations_list :
+        y_pred_temp = deepcopy(y_pred)
+        all_values = permutation.values()
+        not_in_values = [x for x in cluster_pred if x not in all_values]
+        for val in not_in_values :
+            indexes = np.where(y_pred_temp == val)
+            y_pred_temp[indexes] = DummyNumber
+        for key, value in permutation.items() :
+            indexes = np.where(y_pred_temp == value)
+            y_pred_temp[indexes] = key
+        if (accuracy_score(y_true, y_pred_temp) > max_accuracy):
+            max_accuracy = accuracy_score(y_true, y_pred_temp)
+            max_dict_result = permutation
+    return max_accuracy, max_dict_result
