@@ -1,14 +1,17 @@
 import random
 import numpy as np
 import pandas as pd
+from scipy.spatial import distance
+from sklearn.metrics.pairwise import pairwise_distances
 import math
 import sys
+
 
 IntegerTypes = (int)
 StringTypes = (str)
 
 class Agglomerative:
-    __centroid = []
+    __clusters = {}
     __distance = []
 
     def __init__(self, number_of_cluster, linkage) :
@@ -35,10 +38,10 @@ class Agglomerative:
 
         temp_centroid = []
 
-        for i in range(len(self.distance)):
+        for i in range(len(self.__distance)):
             temp_centroid.append(i)
 
-        self.__centroid[0] = temp_centroid.copy()
+        self.__clusters[0] = temp_centroid.copy()
 
         for iterate in range(1, len(self.__distance)):
             min_distance = self.__distance[1][0]
@@ -47,47 +50,64 @@ class Agglomerative:
 
             for i in range(len(self.__distance)):
                 for j in range(i):
-                    if min_distance > self.distance[i][j]:
-                        min_distance = self.distance[i][j]
+                    if min_distance > self.__distance[i][j]:
+                        min_distance = self.__distance[i][j]
                         min_P1 = i
                         min_P2 = j
 
             if (self.linkage == "single"):
                 # do single linkage agglomerative here
 
-                for i in range(len(self.distance)):
+                for i in range(len(self.__distance)):
                     if i != min_P1:
-                        self.distance[i][min_P1] = min(self.distance[i][min_P1], self.distance[i][min_P2])
-                        self.distance[min_P1][i] = min(self.distance[i][min_P1], self.distance[i][min_P2])
+                        distance_change = min(self.__distance[i][min_P1], self.__distance[i][min_P2])
+                        self.__distance[i][min_P1] = distance_change
+                        self.__distance[min_P1][i] = distance_change
 
             elif (self.linkage == "complete"):
                 # do complete linkage agglomerative here
 
-                for i in range(len(self.distance)):
+                for i in range(len(self.__distance)):
                     if i != min_P1:
-                        self.distance[i][min_P1] = max(self.distance[i][min_P1], self.distance[i][min_P2])
-                        self.distance[min_P1][i] = max(self.distance[i][min_P1], self.distance[i][min_P2])
+                        distance_change = max(self.__distance[i][min_P1], self.__distance[i][min_P2])
+                        self.__distance[i][min_P1] = distance_change
+                        self.__distance[min_P1][i] = distance_change
 
-            elif (self.linkage == "average"):
+            elif (self.linkage == "average-group"):
                 # do average linkage agglomerative here
 
-                for i in range(len(self.distance)):
-                    if i != min_P1:
-                        self.distance[i][min_P1] = (self.distance[i][min_P1] + self.distance[i][min_P2])/2
-                        self.distance[min_P1][i] = (self.distance[i][min_P1] + self.distance[i][min_P2])/2
+                for i in range(len(self.__distance)):
+                    if (i != min_P1 and i != min_P2):
+                        distance_change = (self.__distance[i][min_P1] + self.__distance[i][min_P2])/2
+                        self.__distance[i][min_P1] = distance_change
+                        self.__distance[min_P1][i] = distance_change
 
-            elif (self.linkage == "average-group" or self.linkage == "ward"):
+            elif (self.linkage == "average"):
                 # do average-group linkage agglomerative here
+                
+                for i in range(len(self.__distance)):
+                    if(i != min_P1 and i != min_P2):
+                        if (i in self.__clusters[iterate-1]) and (min_P1 in self.__clusters[iterate-1]):
+                            indices_0 = [o for o, u in enumerate(self.__clusters[iterate-1]) if u == i]
+                            indices_1 = [o for o, u in enumerate(self.__clusters[iterate-1]) if u == min_P1]
 
-            for i in range (0,input.shape[0]):
-                input[row_index][i] = sys.maxsize
-                input[i][row_index] = sys.maxsize
+                            sumDist = 0;
+                            for index1 in indices_1:
+                                for index2 in indices_0:
+                                    sumDist += distance.euclidean(data[index1],data[index2])
+                            meanDist = sumDist / (len(indices_1) + len(indices_0))
+                            self.__distance[min_P1][i] = meanDist;
+                            self.__distance[i][min_P1] = meanDist;
+
+            for i in range(len(self.__distance)):
+                self.__distance[min_P1][i] = sys.maxsize
+                self.__distance[i][min_P1] = sys.maxsize
                   
             for i in range(len(temp_centroid)):
                 if(temp_centroid[i] == max(min_P1, min_P2)):
                     temp_centroid[i] = min(min_P1, min_P2)
 
-            self.__centroid[iterate] = temp_centroid.copy()
+            self.__clusters[iterate] = temp_centroid.copy()
 
     def predict(self, X) :
         # X is pandas.dataframe
