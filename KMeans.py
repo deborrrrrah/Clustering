@@ -2,7 +2,6 @@ import pandas as pd
 import numpy as np
 from math import sqrt
 from copy import deepcopy
-import array, collections
 
 IntegerTypes = (int)
 NumberTypes = ['int32', 'int64', 'float32', 'float64']
