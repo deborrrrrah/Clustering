@@ -15,8 +15,10 @@ class KMeans:
             raise TypeError('number_of_cluster must be a integer')
         self.__number_of_cluster = number_of_cluster
     
-    def __countEuclideanDistance(self, x, centroid) :
-        diff = np.subtract(x, centroid)
+    def __euclidean(self, x, y) :
+        if len(x) != len(y) :
+            raise Exception('length x and length y should be same')
+        diff = np.subtract(x, y)
         sum_diff = 0
         for dif in diff :
             sum_diff += (dif * dif)
@@ -35,7 +37,7 @@ class KMeans:
             minimum_centroid = self.__centroid[0]
             minimum_index = 0
             for j in range (self.__centroid.shape[0] - 1):
-                if (self.__countEuclideanDistance(self.__X_train[i], self.__centroid[j+1]) < self.__countEuclideanDistance(self.__X_train[i], minimum_centroid)) :
+                if (self.__euclidean(self.__X_train[i], self.__centroid[j+1]) < self.__euclidean(self.__X_train[i], minimum_centroid)) :
                     minimum_centroid = self.__centroid[j+1]
                     minimum_index = j+1
             cluster_result[i] = minimum_index

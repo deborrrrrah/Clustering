@@ -5,6 +5,7 @@ from scipy.spatial import distance
 import math
 import sys
 from copy import deepcopy
+from sklearn.metrics import pairwise_distances
 
 
 IntegerTypes = (int)
@@ -27,8 +28,6 @@ class Agglomerative:
 
     @staticmethod
     def __euclidean(x, y) :
-    # input  : x, y : points (row of the dataset)   {pandas.Series}
-    # output : the distance of two points           {float}
         if len(x) != len(y) :
             raise Exception('length x and length y should be same')
         sum = 0
@@ -38,24 +37,30 @@ class Agglomerative:
         return math.sqrt(sum)
 
     def __pairwiseDistance(self, X) :
-        return 0
+        result = []
+        for i in range(len(X)) :
+            item = []
+            for j in range(len(X)) :
+                item.append(self.__euclidean(X.iloc[i], X.iloc[j]))
+            result.append(item)
+        return np.asarray(result)
 
     def fit(self, X) :
         # X is pandas.dataframe
-        
         # raise error
         if not isinstance(X, pd.core.frame.DataFrame) :
             raise TypeError("X must be a pandas.core.frame.DataFrame")
         
         self.__X_train = X
         self.__distance = self.__pairwiseDistance(X)
+        # print (self.__distance)
         
         temp_centroid = []
 
         for i in range(len(self.__distance)):
             temp_centroid.append(i)
 
-        self.__clusters[0] = np.asarray(temp_centroid).deepcopy()
+        self.__clusters[0] = deepcopy(temp_centroid)
 
         for iterate in range(1, len(self.__distance)):
             min_distance = self.__distance[1][0]
@@ -117,17 +122,17 @@ class Agglomerative:
                 if(temp_centroid[i] == max(min_P1, min_P2)):
                     temp_centroid[i] = min(min_P1, min_P2)
 
-            self.__clusters[iterate] = temp_centroid.copy()
+            self.__clusters[iterate] = deepcopy(temp_centroid)
+        # print (self.__clusters)
 
-    def predict(self, X) :
-        # X is pandas.dataframe
+    # def predict(self, X) :
+    #     # X is pandas.dataframe
+    #     if not isinstance(X, pd.core.frame.DataFrame) :
+    #         raise TypeError("X must be a pandas.core.frame.DataFrame")
+    #     elif X.select_dtypes(exclude=['number']).empty :
+    #         raise TypeError("X must be all number")
 
-        if not isinstance(X, pd.core.frame.DataFrame) :
-            raise TypeError("X must be a pandas.core.frame.DataFrame")
-        elif X.select_dtypes(exclude=['number']).empty :
-            raise TypeError("X must be all number")
+    #     self.__X_train = X
+    #     result = 0
 
-        self.__X_train = X
-        result = 0
-
-        return result
+    #     return result
