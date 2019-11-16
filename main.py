@@ -44,6 +44,7 @@ sk_kmeans = sklearn_KMeans(n_clusters=number_of_cluster)
 linkage_list = ['single', 'complete', 'average', 'average-group']
 
 # DBSCAN model
+dbscan = DBSCAN(epsilon,min_pts)
 sk_dbscan = sklearn_DBSCAN(eps=epsilon, min_samples=min_pts)
 
 # Accuracy Mean Count Initialization
@@ -105,14 +106,15 @@ for train_index, test_index in kf.split(X, y):
             print ()
     
     # DBSCAN
-    # result = dbscan.fit_predict(X_test)
-    # accuracy, dict = clustering_accuracy_score(np.asarray(y_test), np.asarray(result))
-    # sk_dbscan_accuracy += accuracy
-    # print ('DBSCAN')
-    # print ('Accuracy\t', accuracy)
-    # print ('Format {Real class : cluster}')
-    # print ('Dict\t\t', str(dict))
-    # print ()
+    dbscan.fit(X_train)
+    result = dbscan.predict(X_test)
+    accuracy, dict = clustering_accuracy_score(np.asarray(y_test), np.asarray(result))
+    sk_dbscan_accuracy += accuracy
+    print ('DBSCAN')
+    print ('Accuracy\t', accuracy)
+    print ('Format {Real class : cluster}')
+    print ('Dict\t\t', str(dict))
+    print ()
 
     result = sk_dbscan.fit_predict(X_test)
     accuracy, dict = clustering_accuracy_score(np.asarray(y_test), np.asarray(result))

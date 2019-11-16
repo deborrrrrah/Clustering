@@ -125,14 +125,16 @@ class Agglomerative:
             self.__clusters[iterate] = deepcopy(temp_centroid)
         # print (self.__clusters)
 
-    # def predict(self, X) :
-    #     # X is pandas.dataframe
-    #     if not isinstance(X, pd.core.frame.DataFrame) :
-    #         raise TypeError("X must be a pandas.core.frame.DataFrame")
-    #     elif X.select_dtypes(exclude=['number']).empty :
-    #         raise TypeError("X must be all number")
+    def predict(self, X) :
+        # X is pandas.dataframe
+        if not isinstance(X, pd.core.frame.DataFrame) :
+            raise TypeError("X must be a pandas.core.frame.DataFrame")
+        elif X.select_dtypes(exclude=['number']).empty :
+            raise TypeError("X must be all number")
 
-    #     self.__X_train = X
-    #     result = 0
+        self.__X_train = X
+        self.fit(self.__X_train)
 
-    #     return result
+        # Disini yok harusnya cara ngambil clusternya, terus nge return labelnya
+
+        return 0

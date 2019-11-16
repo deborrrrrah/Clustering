@@ -35,7 +35,7 @@ class DBSCAN :
                 if i == j :
                     pass
                 else :
-                    distance = self.__eucledian(self.__X.loc[i], self.__X.loc[j])
+                    distance = self.__eucledian(self.__X.iloc[i], self.__X.iloc[j])
                     if distance <= self.__eps :
                         self.__neighbors[i].append(j)
                         self.__neighbors[j].append(i)    
