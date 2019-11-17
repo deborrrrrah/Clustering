@@ -41,9 +41,8 @@ def clustering_accuracy_score(y_true, y_pred) :
         for val in not_in_values :
             indexes = np.where(y_pred_temp == val)
             y_pred_temp[indexes] = dummy_number
-        for key, value in permutation.items() :
-            indexes = np.where(y_pred_temp == value)
-            y_pred_temp[indexes] = key
+        flipped_permutation = dict(zip(permutation.values(), permutation.keys()))
+        y_pred_temp = [flipped_permutation[value] for value in y_pred_temp]
         if (accuracy_score(y_true, y_pred_temp) > max_accuracy):
             max_accuracy = accuracy_score(y_true, y_pred_temp)
             max_dict_result = permutation
