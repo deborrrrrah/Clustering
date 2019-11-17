@@ -63,9 +63,9 @@ class Agglomerative:
         self.__clusters[0] = deepcopy(temp_centroid)
 
         for iterate in range(1, len(self.__distance)):
-            min_distance = self.__distance[1][0]
-            min_P1 = 1
-            min_P2 = 0
+            min_distance = self.__distance[0][1]
+            min_P1 = 0
+            min_P2 = 1
 
             for i in range(len(self.__distance)):
                 for j in range(i):
