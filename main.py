@@ -42,8 +42,8 @@ sk_kmeans = sklearn_KMeans(n_clusters=number_of_cluster)
 linkage_list = ['single', 'complete', 'average', 'average-group']
 
 # DBSCAN model
-epss = [1, 2, 2]
-min_ptss = [5, 5, 7]
+epss = [0.5, 1, 2]
+min_ptss = [4, 4, 7]
 
 # Accuracy Mean Count Initialization
 kmeans_accuracy = 0
@@ -109,7 +109,6 @@ for train_index, test_index in kf.split(X, y):
         min_pts = min_ptss[i]
 
         dbscan = DBSCAN(eps, min_pts)
-        dbscan_dummy = DBSCAN(eps, min_pts)
         sk_dbscan = sklearn_DBSCAN(eps=eps, min_samples=min_pts)
 
         dbscan.fit(X_train)
@@ -123,10 +122,12 @@ for train_index, test_index in kf.split(X, y):
         print ('Dict\t\t', str(dict))
         print ()
 
-        dbscan_dummy.fit(X_train)
+        # fit using sklearn but predict using our dbscan implementation
+        # because sklearn doesn't support predict
+        # predict based on labels from sklearn fit
         labels_sklearn = sk_dbscan.fit_predict(X_train)
-        dbscan_dummy.label = labels_sklearn
-        result = dbscan_dummy.predict(X_test)
+        dbscan.labels = labels_sklearn.tolist()
+        result = dbscan.predict(X_test)
         accuracy, dict = clustering_accuracy_score(np.asarray(y_test), np.asarray(result))
         sk_dbscan_accuracy += accuracy
         print ('Sklearn DBSCAN')
@@ -144,4 +145,4 @@ print ('Sklearn KMeans\t\t', sk_kmeans_accuracy/k)
 print ('Agglomerative\t\t', agglo_accuracy/(k*len(linkage_list)))
 print ('Sklearn Agglomerative\t', sk_agglo_accuracy/(k*(len(linkage_list)-1)))
 print ('DBSCAN\t\t\t', dbscan_accuracy/(k * len(epss)))
-print ('Sklearn DBSCAN\t\t', sk_dbscan_accuracy/k)
+print ('Sklearn DBSCAN\t\t', sk_dbscan_accuracy/(k * len(epss)))
