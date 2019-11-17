@@ -8,7 +8,6 @@ class DBSCAN :
     __X = []
     __unvisited = set()
     __neighbors = []
-    __neighbors_predict = []
     __curr_cluster = -1
 
     def __init__(self, eps, min_pts) :
