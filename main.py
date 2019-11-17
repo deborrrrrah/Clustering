@@ -80,8 +80,8 @@ for train_index, test_index in kf.split(X, y):
     print ()
 
     sk_kmeans.fit(X_train)
-    result = sk_kmeans.predict(X_test)
-    accuracy, dict = clustering_accuracy_score(np.asarray(y_test), np.asarray(result))
+    sk_result = sk_kmeans.predict(X_test)
+    accuracy, dict = clustering_accuracy_score(np.asarray(y_test), np.asarray(sk_result))
     sk_kmeans_accuracy += accuracy
     print ('Sklearn KMeans')
     print ('Accuracy\t', accuracy)
@@ -151,12 +151,16 @@ print ('Format {Real class : cluster}')
 print ('Dict\t\t', str(dict))
 print ()
 
-result = sk_kmeans.fit_predict(X)
-accuracy, dict = clustering_accuracy_score(np.asarray(y), np.asarray(result))
+sk_result = sk_kmeans.fit_predict(X)
+accuracy, dict = clustering_accuracy_score(np.asarray(y), np.asarray(sk_result))
 print ('Sklearn KMeans')
 print ('Accuracy\t', accuracy)
 print ('Format {Real class : cluster}')
 print ('Dict\t\t', str(dict))
+print ()
+
+accuracy, dict = clustering_accuracy_score(np.asarray(result), np.asarray(sk_result))
+print ('Similarities KMeans\t{}'.format(accuracy))
 print ()
 
 # Agglomerative
@@ -171,12 +175,16 @@ for linkage_type in linkage_list :
     print ()
     if linkage_type != 'average-group' :
         sk_agglo = sklearn_AgglomerativeClustering(n_clusters=number_of_cluster, linkage=linkage_type)
-        result = sk_agglo.fit_predict(X)
-        accuracy, dict = clustering_accuracy_score(np.asarray(y), np.asarray(result))
+        sk_result = sk_agglo.fit_predict(X)
+        accuracy, dict = clustering_accuracy_score(np.asarray(y), np.asarray(sk_result))
         print ('Sklearn Agglomerative - ' + str(linkage_type))
         print ('Accuracy\t', accuracy)
         print ('Format {Real class : cluster}')
         print ('Dict\t\t', str(dict))
+        print ()
+
+        accuracy, dict = clustering_accuracy_score(np.asarray(result), np.asarray(sk_result))
+        print ('Similarities Agglomerative - {}\t{}'.format(linkage_type, accuracy))
         print ()
 
 for i in range (0, len(epss)) :
@@ -196,11 +204,15 @@ for i in range (0, len(epss)) :
     print ('Dict\t\t', str(dict))
     print ()
 
-    labels_sklearn = sk_dbscan.fit_predict(X)
-    accuracy, dict = clustering_accuracy_score(np.asarray(y), np.asarray(result))
+    sk_result = sk_dbscan.fit_predict(X)
+    accuracy, dict = clustering_accuracy_score(np.asarray(y), np.asarray(sk_result))
     print ('Sklearn DBSCAN')
     print ('Epsilon : {} Min Points : {}'.format(eps, min_pts))
     print ('Accuracy\t', accuracy)
     print ('Format {Real class : cluster}')
     print ('Dict\t\t', str(dict))
+    print ()
+
+    accuracy, dict = clustering_accuracy_score(np.asarray(result), np.asarray(sk_result))
+    print ('Similarities DBScan\t{}'.format(accuracy))
     print ()
