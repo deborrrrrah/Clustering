@@ -83,15 +83,15 @@ for train_index, test_index in kf.split(X, y):
     # Agglomerative
     for linkage_type in linkage_list :
         agglo = Agglomerative(number_of_cluster, linkage_type)
-        # agglo.fit(X_train)
-        # result = agglo.predict(X_test)
-        # accuracy, dict = clustering_accuracy_score(np.asarray(y_test), np.asarray(result))
-        # agglo_accuracy += accuracy
-        # print ('Agglomerative - ' + str(linkage_type))
-        # print ('Accuracy\t', accuracy)
-        # print ('Format {Real class : cluster}')
-        # print ('Dict\t\t', str(dict))
-        # print ()
+        agglo.fit(X_train)
+        result = agglo.predict(X_test)
+        accuracy, dict = clustering_accuracy_score(np.asarray(y_test), np.asarray(result))
+        agglo_accuracy += accuracy
+        print ('Agglomerative - ' + str(linkage_type))
+        print ('Accuracy\t', accuracy)
+        print ('Format {Real class : cluster}')
+        print ('Dict\t\t', str(dict))
+        print ()
         if linkage_type != 'average-group' :
             sk_agglo = sklearn_AgglomerativeClustering(n_clusters=number_of_cluster, linkage=linkage_type)
             result = sk_agglo.fit_predict(X_test)

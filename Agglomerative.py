@@ -71,14 +71,14 @@ class Agglomerative:
                 for j in range(i):
                     if min_distance > self.__distance[i][j]:
                         min_distance = self.__distance[i][j]
-                        min_P1 = i
-                        min_P2 = j
+                        min_P2 = i
+                        min_P1 = j
 
             if (self.__linkage == "single"):
                 # do single linkage agglomerative here
                 for i in range(len(self.__distance)):
                     if i != min_P1:
-                        distance_change = min(self.__distance[i][min_P1], self.__distance[i][min_P2])
+                        distance_change = min(self.__distance[min_P1][i], self.__distance[min_P2][i])
                         self.__distance[i][min_P1] = distance_change
                         self.__distance[min_P1][i] = distance_change
 
@@ -86,7 +86,7 @@ class Agglomerative:
                 # do complete linkage agglomerative here
                 for i in range(len(self.__distance)):
                     if i != min_P1:
-                        distance_change = max(self.__distance[i][min_P1], self.__distance[i][min_P2])
+                        distance_change = max(self.__distance[min_P1][i], self.__distance[min_P2][i])
                         self.__distance[i][min_P1] = distance_change
                         self.__distance[min_P1][i] = distance_change
 
@@ -94,7 +94,7 @@ class Agglomerative:
                 # do average linkage agglomerative here
                 for i in range(len(self.__distance)):
                     if (i != min_P1 and i != min_P2):
-                        distance_change = (self.__distance[i][min_P1] + self.__distance[i][min_P2])/2
+                        distance_change = (self.__distance[min_P1][i] + self.__distance[min_P2][i])/2
                         self.__distance[i][min_P1] = distance_change
                         self.__distance[min_P1][i] = distance_change
 
@@ -109,14 +109,14 @@ class Agglomerative:
                             sumDist = 0
                             for index1 in indices_1:
                                 for index2 in indices_0:
-                                    sumDist += self.__euclidean(self.__X_train[index1],self.__X_train[index2])
+                                    sumDist += self.__euclidean(self.__X_train.iloc[index1],self.__X_train.iloc[index2])
                             meanDist = sumDist / (len(indices_1) + len(indices_0))
                             self.__distance[min_P1][i] = meanDist
                             self.__distance[i][min_P1] = meanDist
 
             for i in range(len(self.__distance)):
-                self.__distance[min_P1][i] = sys.maxsize
-                self.__distance[i][min_P1] = sys.maxsize
+                self.__distance[min_P2][i] = sys.maxsize
+                self.__distance[i][min_P2] = sys.maxsize
                   
             for i in range(len(temp_centroid)):
                 if(temp_centroid[i] == max(min_P1, min_P2)):
@@ -127,14 +127,13 @@ class Agglomerative:
 
     def predict(self, X) :
         # X is pandas.dataframe
-        if not isinstance(X, pd.core.frame.DataFrame) :
-            raise TypeError("X must be a pandas.core.frame.DataFrame")
-        elif X.select_dtypes(exclude=['number']).empty :
-            raise TypeError("X must be all number")
+        # if not isinstance(X, pd.core.frame.DataFrame) :
+        #     raise TypeError("X must be a pandas.core.frame.DataFrame")
+        # elif X.select_dtypes(exclude=['number']).empty :
+        #     raise TypeError("X must be all number")
 
         self.__X_train = X
         self.fit(self.__X_train)
 
-        # Disini yok harusnya cara ngambil clusternya, terus nge return labelnya
-
-        return 0
+        self.__iteration_number = self.__distance.shape[0] - self.__number_of_cluster
+        return self.__clusters[self.__iteration_number]
