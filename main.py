@@ -166,6 +166,7 @@ print ()
 # Agglomerative
 for linkage_type in linkage_list :
     agglo = Agglomerative(number_of_cluster, linkage_type)
+    agglo.fit(X)
     result = agglo.predict(X)
     accuracy, dict = clustering_accuracy_score(np.asarray(y), np.asarray(result))
     print ('Agglomerative - ' + str(linkage_type))

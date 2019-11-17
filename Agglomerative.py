@@ -126,14 +126,28 @@ class Agglomerative:
         # print (self.__clusters)
 
     def predict(self, X) :
-        # X is pandas.dataframe
-        # if not isinstance(X, pd.core.frame.DataFrame) :
-        #     raise TypeError("X must be a pandas.core.frame.DataFrame")
-        # elif X.select_dtypes(exclude=['number']).empty :
-        #     raise TypeError("X must be all number")
+         # check input
+        if isinstance(X, pd.DataFrame) :
+            self.__X_predict = X
+        elif isinstance(X, list) :
+            self.__X_predict = pd.DataFrame(data=X)
+        else :
+            raise Exception('X should be a pandas.Dataframe or list of list')
 
-        self.__X_train = X
-        self.fit(self.__X_train)
-
+        self.labels_predict = [-1] * len(self.__X_predict.index)
         self.__iteration_number = self.__distance.shape[0] - self.__number_of_cluster
-        return self.__clusters[self.__iteration_number]
+
+        for i in range (0, len(self.__X_predict.index)) :
+            min_distance = -1
+            min_label = -1
+            for j in range (0, len(self.__X_train.index)) :
+                distance = self.__euclidean(self.__X_predict.iloc[i], self.__X_train.iloc[j])
+                if min_distance == -1 :
+                    min_distance = distance
+                    min_label = self.__clusters[self.__iteration_number][j]
+                elif distance < min_distance :
+                    min_distance = distance
+                    min_label = self.__clusters[self.__iteration_number][j]
+            self.labels_predict[i] = min_label
+
+        return self.labels_predict
