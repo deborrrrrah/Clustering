@@ -23,6 +23,11 @@ def clustering_accuracy_score(y_true, y_pred) :
     
     cluster_true = np.unique(y_true)
     cluster_pred = np.unique(y_pred)
+
+    # delete -1
+    cluster_true = cluster_true[cluster_true != -1]
+    cluster_pred = cluster_pred[cluster_pred != -1]
+
     max_dict_result = dict(zip(cluster_true, repeat(None)))
     max_accuracy = dummy_number
     if (len(cluster_true) > len(cluster_pred)) :

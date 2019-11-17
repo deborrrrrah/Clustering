@@ -42,8 +42,8 @@ sk_kmeans = sklearn_KMeans(n_clusters=number_of_cluster)
 linkage_list = ['single', 'complete', 'average', 'average-group']
 
 # DBSCAN model
-epss = [0.5, 1, 2]
-min_ptss = [4, 4, 7]
+epss = [0.5, 1]
+min_ptss = [4, 5]
 
 # Accuracy Mean Count Initialization
 kmeans_accuracy = 0
@@ -53,7 +53,10 @@ sk_agglo_accuracy = 0
 dbscan_accuracy = 0
 sk_dbscan_accuracy = 0
 
-k = 1
+print ('=== ACCURACY FROM PREDICT ===')
+print ()
+
+k = 0
 for train_index, test_index in kf.split(X, y):
     print (str(k) + '-fold')
     X_train, y_train = X.iloc[train_index], y.iloc[train_index]
@@ -69,7 +72,7 @@ for train_index, test_index in kf.split(X, y):
     print ('Format {Real class : cluster}')
     print ('Dict\t\t', str(dict))
     print ()
-    
+
     sk_kmeans.fit(X_train)
     result = sk_kmeans.predict(X_test)
     accuracy, dict = clustering_accuracy_score(np.asarray(y_test), np.asarray(result))
@@ -92,16 +95,6 @@ for train_index, test_index in kf.split(X, y):
         print ('Format {Real class : cluster}')
         print ('Dict\t\t', str(dict))
         print ()
-        if linkage_type != 'average-group' :
-            sk_agglo = sklearn_AgglomerativeClustering(n_clusters=number_of_cluster, linkage=linkage_type)
-            result = sk_agglo.fit_predict(X_test)
-            accuracy, dict = clustering_accuracy_score(np.asarray(y_test), np.asarray(result))
-            sk_agglo_accuracy += accuracy
-            print ('Sklearn Agglomerative - ' + str(linkage_type))
-            print ('Accuracy\t', accuracy)
-            print ('Format {Real class : cluster}')
-            print ('Dict\t\t', str(dict))
-            print ()
     
     # DBSCAN
     for i in range (0, len(epss)) :
@@ -122,27 +115,77 @@ for train_index, test_index in kf.split(X, y):
         print ('Dict\t\t', str(dict))
         print ()
 
-        # fit using sklearn but predict using our dbscan implementation
-        # because sklearn doesn't support predict
-        # predict based on labels from sklearn fit
-        labels_sklearn = sk_dbscan.fit_predict(X_train)
-        dbscan.labels = labels_sklearn.tolist()
-        result = dbscan.predict(X_test)
-        accuracy, dict = clustering_accuracy_score(np.asarray(y_test), np.asarray(result))
-        sk_dbscan_accuracy += accuracy
-        print ('Sklearn DBSCAN')
-        print ('Epsilon : {} Min Points : {}'.format(eps, min_pts))
+    k += 1
+
+print ('RESULT')
+print ('KMeans\t\t\t', kmeans_accuracy / k)
+print ('SKlearns KMeans\t\t', sk_kmeans_accuracy / k)
+print ('Agglomerative\t\t', agglo_accuracy / (k * len(linkage_list)))
+print ('DBSCAN\t\t\t', dbscan_accuracy / (k * len(epss)))
+
+print ()
+print ('=== COMPARE TO SKLEARN ===')
+print ()
+
+kmeans.fit(np.asarray(X))
+result = kmeans.predict(np.asarray(X))
+accuracy, dict = clustering_accuracy_score(np.asarray(y), np.asarray(result))
+print ('KMeans')
+print ('Accuracy\t', accuracy)
+print ('Format {Real class : cluster}')
+print ('Dict\t\t', str(dict))
+print ()
+
+result = sk_kmeans.fit_predict(X)
+accuracy, dict = clustering_accuracy_score(np.asarray(y), np.asarray(result))
+print ('Sklearn KMeans')
+print ('Accuracy\t', accuracy)
+print ('Format {Real class : cluster}')
+print ('Dict\t\t', str(dict))
+print ()
+
+# Agglomerative
+for linkage_type in linkage_list :
+    agglo = Agglomerative(number_of_cluster, linkage_type)
+    result = agglo.predict(X)
+    accuracy, dict = clustering_accuracy_score(np.asarray(y), np.asarray(result))
+    print ('Agglomerative - ' + str(linkage_type))
+    print ('Accuracy\t', accuracy)
+    print ('Format {Real class : cluster}')
+    print ('Dict\t\t', str(dict))
+    print ()
+    if linkage_type != 'average-group' :
+        sk_agglo = sklearn_AgglomerativeClustering(n_clusters=number_of_cluster, linkage=linkage_type)
+        result = sk_agglo.fit_predict(X)
+        accuracy, dict = clustering_accuracy_score(np.asarray(y), np.asarray(result))
+        print ('Sklearn Agglomerative - ' + str(linkage_type))
         print ('Accuracy\t', accuracy)
         print ('Format {Real class : cluster}')
         print ('Dict\t\t', str(dict))
         print ()
 
-    k += 1
+for i in range (0, len(epss)) :
+    eps = epss[i]
+    min_pts = min_ptss[i]
 
-print ('RESULT')
-print ('KMeans\t\t\t', kmeans_accuracy/k)
-print ('Sklearn KMeans\t\t', sk_kmeans_accuracy/k)
-print ('Agglomerative\t\t', agglo_accuracy/(k*len(linkage_list)))
-print ('Sklearn Agglomerative\t', sk_agglo_accuracy/(k*(len(linkage_list)-1)))
-print ('DBSCAN\t\t\t', dbscan_accuracy/(k * len(epss)))
-print ('Sklearn DBSCAN\t\t', sk_dbscan_accuracy/(k * len(epss)))
+    dbscan = DBSCAN(eps, min_pts)
+    sk_dbscan = sklearn_DBSCAN(eps=eps, min_samples=min_pts)
+
+    dbscan.fit(X)
+    result = dbscan.labels
+    accuracy, dict = clustering_accuracy_score(np.asarray(y), np.asarray(result))
+    print ('DBSCAN')
+    print ('Epsilon : {} Min Points : {}'.format(eps, min_pts))
+    print ('Accuracy\t', accuracy)
+    print ('Format {Real class : cluster}')
+    print ('Dict\t\t', str(dict))
+    print ()
+
+    labels_sklearn = sk_dbscan.fit_predict(X)
+    accuracy, dict = clustering_accuracy_score(np.asarray(y), np.asarray(result))
+    print ('Sklearn DBSCAN')
+    print ('Epsilon : {} Min Points : {}'.format(eps, min_pts))
+    print ('Accuracy\t', accuracy)
+    print ('Format {Real class : cluster}')
+    print ('Dict\t\t', str(dict))
+    print ()
