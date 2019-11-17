@@ -130,14 +130,13 @@ for train_index, test_index in kf.split(X, y):
 
     k += 1
 
-print ('RESULT')
-print ('KMeans\t\t\t', kmeans_accuracy / k)
-print ('SKlearns KMeans\t\t', sk_kmeans_accuracy / k)
+print ('=== RESULT TRAIN TEST SPLIT ===')
+print ('KMeans\t\t\t\t', kmeans_accuracy / k)
 print ('Agglomerative Single\t\t', agglo_accuracy_single / k)
 print ('Agglomerative Complete\t\t', agglo_accuracy_complete / k)
 print ('Agglomerative Average\t\t', agglo_accuracy_average / k)
 print ('Agglomerative Average Group\t', agglo_accuracy_average_group / k)
-print ('DBSCAN\t\t\t', dbscan_accuracy / (k * len(epss)))
+print ('DBSCAN\t\t\t\t', dbscan_accuracy / (k * len(epss)))
 
 print ()
 print ('=== COMPARE TO SKLEARN ===')

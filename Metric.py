@@ -5,7 +5,7 @@ from itertools import repeat, permutations
 
 NumberTypes = ['int32', 'int64', 'float32', 'float64']
 ArrayTypes = (np.ndarray)
-dummy_number = -999
+dummy_number = -1
 
 def clustering_accuracy_score(y_true, y_pred) :
     if not isinstance(y_true, ArrayTypes) :
@@ -36,13 +36,8 @@ def clustering_accuracy_score(y_true, y_pred) :
         permutations_list = [dict(zip(cluster_true, x)) for x in permutations(cluster_pred,len(cluster_true))]
     for permutation in permutations_list :
         y_pred_temp = deepcopy(y_pred)
-        all_values = permutation.values()
-        not_in_values = [x for x in cluster_pred if x not in all_values]
-        for val in not_in_values :
-            indexes = np.where(y_pred_temp == val)
-            y_pred_temp[indexes] = dummy_number
         flipped_permutation = dict(zip(permutation.values(), permutation.keys()))
-        y_pred_temp = [flipped_permutation[value] for value in y_pred_temp]
+        y_pred_temp = [flipped_permutation[value] if value != dummy_number else value for value in y_pred_temp]
         if (accuracy_score(y_true, y_pred_temp) > max_accuracy):
             max_accuracy = accuracy_score(y_true, y_pred_temp)
             max_dict_result = permutation
