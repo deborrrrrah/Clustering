@@ -5,8 +5,6 @@ from scipy.spatial import distance
 import math
 import sys
 from copy import deepcopy
-from sklearn.metrics import pairwise_distances
-
 
 IntegerTypes = (int)
 StringTypes = (str)
@@ -125,7 +123,6 @@ class Agglomerative:
                     temp_centroid[i] = min(min_P1, min_P2)
 
             self.__clusters[iterate] = deepcopy(temp_centroid)
-        # print (self.__clusters)
 
     def predict(self, X) :
          # check input
