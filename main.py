@@ -117,6 +117,7 @@ for train_index, test_index in kf.split(X, y):
         accuracy, dict = clustering_accuracy_score(np.asarray(y_test), np.asarray(result))
         dbscan_accuracy += accuracy
         print ('DBSCAN')
+        print ('Epsilon : {} Min Points : {}'.format(eps, min_pts))
         print ('Accuracy\t', accuracy)
         print ('Format {Real class : cluster}')
         print ('Dict\t\t', str(dict))
@@ -129,6 +130,7 @@ for train_index, test_index in kf.split(X, y):
         accuracy, dict = clustering_accuracy_score(np.asarray(y_test), np.asarray(result))
         sk_dbscan_accuracy += accuracy
         print ('Sklearn DBSCAN')
+        print ('Epsilon : {} Min Points : {}'.format(eps, min_pts))
         print ('Accuracy\t', accuracy)
         print ('Format {Real class : cluster}')
         print ('Dict\t\t', str(dict))
@@ -141,5 +143,5 @@ print ('KMeans\t\t\t', kmeans_accuracy/k)
 print ('Sklearn KMeans\t\t', sk_kmeans_accuracy/k)
 print ('Agglomerative\t\t', agglo_accuracy/(k*len(linkage_list)))
 print ('Sklearn Agglomerative\t', sk_agglo_accuracy/(k*(len(linkage_list)-1)))
-print ('DBSCAN\t\t\t', dbscan_accuracy/k)
+print ('DBSCAN\t\t\t', dbscan_accuracy/(k * len(epss)))
 print ('Sklearn DBSCAN\t\t', sk_dbscan_accuracy/k)
