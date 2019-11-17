@@ -46,7 +46,7 @@ class DBSCAN :
     #           pts : list of neighbors' indices of p   {int}
         self.labels[p] = self.__curr_cluster
         for pt in pts :
-            if pt not in self.__unvisited :
+            if pt in self.__unvisited :
                 self.__unvisited.discard(pt)
                 nei_pts = self.__neighbors[pt]
                 if len(nei_pts) >= self.__min_pts :
@@ -101,7 +101,7 @@ class DBSCAN :
             min_distance = -1
             min_label = -1
             for j in range (0, len(self.__X.index)) :
-                distance = self.__eucledian(self.__X_predict.loc[i], self.__X.loc[j])
+                distance = self.__eucledian(self.__X_predict.iloc[i], self.__X.iloc[j])
                 if min_distance == -1 :
                     min_distance = distance
                     min_label = self.labels[j]

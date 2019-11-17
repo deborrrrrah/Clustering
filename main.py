@@ -32,8 +32,6 @@ y_temp = df.iloc[:,-1:]
 y = y_temp.replace({'Iris-setosa' : 0, 'Iris-versicolor' : 1, 'Iris-virginica' : 2})
 
 number_of_cluster = 3
-epsilon = 1
-min_pts = 10
 kf = StratifiedKFold(n_splits=2)
 
 # KMeans model
@@ -44,8 +42,8 @@ sk_kmeans = sklearn_KMeans(n_clusters=number_of_cluster)
 linkage_list = ['single', 'complete', 'average', 'average-group']
 
 # DBSCAN model
-dbscan = DBSCAN(epsilon,min_pts)
-sk_dbscan = sklearn_DBSCAN(eps=epsilon, min_samples=min_pts)
+epss = [1, 2, 2]
+min_ptss = [5, 5, 7]
 
 # Accuracy Mean Count Initialization
 kmeans_accuracy = 0
@@ -106,24 +104,35 @@ for train_index, test_index in kf.split(X, y):
             print ()
     
     # DBSCAN
-    dbscan.fit(X_train)
-    result = dbscan.predict(X_test)
-    accuracy, dict = clustering_accuracy_score(np.asarray(y_test), np.asarray(result))
-    sk_dbscan_accuracy += accuracy
-    print ('DBSCAN')
-    print ('Accuracy\t', accuracy)
-    print ('Format {Real class : cluster}')
-    print ('Dict\t\t', str(dict))
-    print ()
+    for i in range (0, len(epss)) :
+        eps = epss[i]
+        min_pts = min_ptss[i]
 
-    result = sk_dbscan.fit_predict(X_test)
-    accuracy, dict = clustering_accuracy_score(np.asarray(y_test), np.asarray(result))
-    sk_dbscan_accuracy += accuracy
-    print ('Sklearn DBSCAN')
-    print ('Accuracy\t', accuracy)
-    print ('Format {Real class : cluster}')
-    print ('Dict\t\t', str(dict))
-    print ()
+        dbscan = DBSCAN(eps, min_pts)
+        dbscan_dummy = DBSCAN(eps, min_pts)
+        sk_dbscan = sklearn_DBSCAN(eps=eps, min_samples=min_pts)
+
+        dbscan.fit(X_train)
+        result = dbscan.predict(X_test)
+        accuracy, dict = clustering_accuracy_score(np.asarray(y_test), np.asarray(result))
+        dbscan_accuracy += accuracy
+        print ('DBSCAN')
+        print ('Accuracy\t', accuracy)
+        print ('Format {Real class : cluster}')
+        print ('Dict\t\t', str(dict))
+        print ()
+
+        dbscan_dummy.fit(X_train)
+        labels_sklearn = sk_dbscan.fit_predict(X_train)
+        dbscan_dummy.label = labels_sklearn
+        result = dbscan_dummy.predict(X_test)
+        accuracy, dict = clustering_accuracy_score(np.asarray(y_test), np.asarray(result))
+        sk_dbscan_accuracy += accuracy
+        print ('Sklearn DBSCAN')
+        print ('Accuracy\t', accuracy)
+        print ('Format {Real class : cluster}')
+        print ('Dict\t\t', str(dict))
+        print ()
 
     k += 1
 
