@@ -94,7 +94,9 @@ class Agglomerative:
                 # do average linkage agglomerative here
                 for i in range(len(self.__distance)):
                     if (i != min_P1 and i != min_P2):
-                        distance_change = (self.__distance[min_P1][i] + self.__distance[min_P2][i])/2
+                        occ_P1 = self.__clusters[iterate - 1].count(min_P1)
+                        occ_P2 = self.__clusters[iterate - 1].count(min_P2)
+                        distance_change = (occ_P1 * self.__distance[min_P1][i] + occ_P2 * self.__distance[min_P2][i]) / (occ_P1 + occ_P2) 
                         self.__distance[i][min_P1] = distance_change
                         self.__distance[min_P1][i] = distance_change
 
