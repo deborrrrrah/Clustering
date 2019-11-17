@@ -46,10 +46,16 @@ epss = [0.5, 1]
 min_ptss = [4, 5]
 
 # Accuracy Mean Count Initialization
+# Accuracy Mean Count Initialization
 kmeans_accuracy = 0
 sk_kmeans_accuracy = 0
-agglo_accuracy = 0
-sk_agglo_accuracy = 0
+agglo_accuracy_single = 0
+agglo_accuracy_complete = 0
+agglo_accuracy_average = 0
+agglo_accuracy_average_group = 0
+sk_agglo_accuracy_single = 0
+sk_agglo_accuracy_complete = 0
+sk_agglo_accuracy_average = 0
 dbscan_accuracy = 0
 sk_dbscan_accuracy = 0
 
@@ -89,7 +95,14 @@ for train_index, test_index in kf.split(X, y):
         agglo.fit(X_train)
         result = agglo.predict(X_test)
         accuracy, dict = clustering_accuracy_score(np.asarray(y_test), np.asarray(result))
-        agglo_accuracy += accuracy
+        if linkage_type == 'single' :
+            agglo_accuracy_single += accuracy
+        elif linkage_type == 'complete' :
+            agglo_accuracy_complete += accuracy
+        elif linkage_type == 'average' :
+            agglo_accuracy_average += accuracy
+        elif linkage_type == 'average-group' :
+            agglo_accuracy_average_group += accuracy
         print ('Agglomerative - ' + str(linkage_type))
         print ('Accuracy\t', accuracy)
         print ('Format {Real class : cluster}')
@@ -120,7 +133,10 @@ for train_index, test_index in kf.split(X, y):
 print ('RESULT')
 print ('KMeans\t\t\t', kmeans_accuracy / k)
 print ('SKlearns KMeans\t\t', sk_kmeans_accuracy / k)
-print ('Agglomerative\t\t', agglo_accuracy / (k * len(linkage_list)))
+print ('Agglomerative Single\t\t', agglo_accuracy_single / k)
+print ('Agglomerative Complete\t\t', agglo_accuracy_complete / k)
+print ('Agglomerative Average\t\t', agglo_accuracy_average / k)
+print ('Agglomerative Average Group\t', agglo_accuracy_average_group / k)
 print ('DBSCAN\t\t\t', dbscan_accuracy / (k * len(epss)))
 
 print ()
